@@ -1,4 +1,4 @@
-export { ItemsAccordion } from './app/components/Accordion'
+import { default as ItemsAccordion } from "@/app/components/Accordion"
 
 const items = [
   {
