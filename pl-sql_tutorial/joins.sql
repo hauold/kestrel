@@ -9,4 +9,4 @@ FROM
     customers a
 FULL OUTER JOIN
     contacts b ON a.customer_id = b.customer_id
-WHERE a.customer_id IS NULL OR b.contact_id IS NULL;
+--WHERE a.customer_id IS NULL OR b.contact_id IS NULL;
