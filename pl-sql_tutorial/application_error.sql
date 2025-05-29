@@ -58,3 +58,27 @@ BEGIN
         WHEN e3 THEN
             dbms_output.put_line('Handle exception when the input number is 3');
 END;
+
+DECLARE
+    l_code NUMBER;
+    r_customer customers%ROWTYPE;
+BEGIN
+    SELECT * INTO r_customer FROM customers;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            l_code := SQLCODE;
+            dbms_output.put_line('Error code: ' || l_code);
+END;
+
+DECLARE
+    l_msg VARCHAR(255);
+    r_customer customers%ROWTYPE;
+BEGIN
+    SELECT * INTO r_customer FROM customers;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            l_msg := SQLERRM;
+            dbms_output.put_line(l_msg);
+END;
