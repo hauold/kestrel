@@ -1,67 +1,80 @@
-CREATE VIEW sales AS
-SELECT
-  customer_id,
-  SUM(unit_price * quantity) total,
-  ROUND(SUM(unit_price * quantity) * 0.05) credit
-FROM
-  order_items
-  INNER JOIN orders USING (order_id)
-WHERE
-  status = 'Shipped'
-GROUP BY
-  customer_id;
+create view sales as
+   select customer_id,
+          sum(unit_price * quantity) total,
+          round(sum(unit_price * quantity) * 0.05) credit
+     from order_items
+    inner join orders
+   using ( order_id )
+    where status = 'Shipped'
+    group by customer_id;
 
-SELECT * FROM sales
-ORDER BY customer_id;
+select *
+  from sales
+ order by customer_id;
 
-DECLARE
-    CURSOR c_revenue (in_year NUMBER :=2017 , in_customer_id NUMBER := 1)
-    IS
-        SELECT SUM(quantity * unit_price) revenue
-        FROM order_items
-        INNER JOIN orders USING (order_id)
-        WHERE status = 'Shipped' AND EXTRACT( YEAR FROM order_date) = in_year
-        GROUP BY customer_id
-        HAVING customer_id = in_customer_id;
-        
-    r_revenue c_revenue%rowtype;
-BEGIN
-    OPEN c_revenue;
-    LOOP
-        FETCH c_revenue INTO r_revenue;
-        EXIT    WHEN c_revenue%notfound;
+declare
+   cursor c_revenue (
+      in_year        number := 2017,
+      in_customer_id number := 1
+   ) is
+   select sum(quantity * unit_price) revenue
+     from order_items
+    inner join orders
+   using ( order_id )
+    where status = 'Shipped'
+      and extract(year from order_date) = in_year
+    group by customer_id
+   having customer_id = in_customer_id;
+
+   r_revenue c_revenue%rowtype;
+begin
+   open c_revenue;
+   loop
+      fetch c_revenue into r_revenue;
+      exit when c_revenue%notfound;
         -- show the revenue
-        dbms_output.put_line(r_revenue.revenue);
-    END LOOP;
-    CLOSE c_revenue;
-END;
+      dbms_output.put_line(r_revenue.revenue);
+   end loop;
+   close c_revenue;
+end;
 
-DECLARE
-    r_product products%rowtype;
-    CURSOR c_product (low_price NUMBER, high_price NUMBER)
-    IS
-        SELECT *
-        FROM products
-        WHERE list_price BETWEEN low_price AND high_price;
-BEGIN
+declare
+   r_product products%rowtype;
+   cursor c_product (
+      low_price  number,
+      high_price number
+   ) is
+   select *
+     from products
+    where list_price between low_price and high_price;
+begin
     -- show mass products
-    dbms_output.put_line('Mass products: ');
-    OPEN c_product(50,100);
-    LOOP
-        FETCH c_product INTO r_product;
-        EXIT WHEN c_product%notfound;
-        dbms_output.put_line(r_product.product_name || ': ' ||r_product.list_price);
-    END LOOP;
-    CLOSE c_product;
+   dbms_output.put_line('Mass products: ');
+   open c_product(
+      50,
+      100
+   );
+   loop
+      fetch c_product into r_product;
+      exit when c_product%notfound;
+      dbms_output.put_line(r_product.product_name
+                           || ': '
+                           || r_product.list_price);
+   end loop;
+   close c_product;
 
     -- show luxury products
-    dbms_output.put_line('Luxury products: ');
-    OPEN c_product(800,1000);
-    LOOP
-        FETCH c_product INTO r_product;
-        EXIT WHEN c_product%notfound;
-        dbms_output.put_line(r_product.product_name || ': ' ||r_product.list_price);
-    END LOOP;
-    CLOSE c_product;
-
-END;
+   dbms_output.put_line('Luxury products: ');
+   open c_product(
+      800,
+      1000
+   );
+   loop
+      fetch c_product into r_product;
+      exit when c_product%notfound;
+      dbms_output.put_line(r_product.product_name
+                           || ': '
+                           || r_product.list_price);
+   end loop;
+   close c_product;
+end;
