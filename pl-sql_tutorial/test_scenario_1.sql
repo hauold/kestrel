@@ -13,6 +13,22 @@ BEGIN
     RETURN t_new_ID;
 END;
 
+--Create function to check for a duplicate record
+CREATE OR REPLACE FUNCTION check_duplicate_char (
+    table_name VARCHAR2,
+    column_name VARCHAR2,
+    record_value VARCHAR2
+) RETURN BOOLEAN
+IS
+    v_sql VARCHAR2(1000);
+    t_is_existing BOOLEAN;
+BEGIN
+    v_sql := 'SELECT 1 FROM ' || table_name || ' WHERE ' || column_name || ' = ''' || record_value || '''';
+    EXECUTE IMMEDIATE v_sql INTO t_is_existing;
+
+    RETURN t_is_existing;
+END;
+
 -- Procedure that adds a record to a table
 CREATE OR REPLACE PROCEDURE add_customer (
     p_name customers.name%TYPE,
@@ -23,13 +39,24 @@ CREATE OR REPLACE PROCEDURE add_customer (
 IS
     r_customer customers%ROWTYPE;
     t_row_ID NUMBER;
+    t_flag_test BOOLEAN;
+    
+    e_duplicate_name EXCEPTION;
+    PRAGMA EXCEPTION_INIT (e_duplicate_name, -20001);
 BEGIN
     -- generate new customer_id
     t_row_ID := new_customer_id('CUSTOMERS') + 1;
 
-    -- insert new record to customer table
-    INSERT INTO customers (customer_id, name, address, website, credit_limit)
-    VALUES (t_row_ID, p_name, p_address, p_website, p_credit_limit);
+    --determine duplicate customer name
+    t_flag_test := check_duplicate_char('customers', 'name', 'Test Using Procedure');
+
+    IF t_flag_test THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Duplicate name!');
+    ELSE
+        -- insert new record to customer table
+        INSERT INTO customers (customer_id, name, address, website, credit_limit)
+        VALUES (t_row_ID, p_name, p_address, p_website, p_credit_limit);
+    END IF;
 
     EXCEPTION
         WHEN OTHERS THEN
@@ -38,3 +65,16 @@ END;
 
 EXEC add_customer('Test Using Procedure', 'Metro Manila', 'http://www.test.com', 90000);
 EXEC add_customer(NULL, 'Zambales', 'http://www.okay.com', 1100000);
+
+
+SELECT * FROM customers WHERE name = 'Test Using Procedure';
+
+DECLARE
+    t_flag_test BOOLEAN;
+BEGIN
+    t_flag_test := check_duplicate_char('customers', 'name', 'Test Using Procedure');
+
+    IF t_flag_test THEN
+    DBMS_OUTPUT.PUT_LINE('Exists');
+    END IF;
+END;
