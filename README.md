@@ -83,7 +83,7 @@ List of test cases for API testing.
 | 73 | Verify that the API correctly handles error conditions and returns the correct HTTP status code and error message. |
 | 74 | Verify that the API correctly handles various types of requests, such as GET, POST, PUT, DELETE, OPTIONS, HEAD, and PATCH. |
 | 75 | Verify that the API correctly handles various types of data, such as strings, numbers, dates, and binary data. |
-v76 | Verify that the API correctly handles various types of authentication, such as basic authentication, token authentication, and OAuth. |
+| 76 | Verify that the API correctly handles various types of authentication, such as basic authentication, token authentication, and OAuth. |
 | 77 | Verify that the API correctly handles various types of authorization, such as role-based. |
 | 78 | Verify that the API returns the correct HTTP status code for requests that are not supported (e.g., HTTP 405 Method Not Allowed). |
 | 79 | Verify that the API returns the correct HTTP status code for invalid requests (e.g., HTTP 400 Bad Request). |
